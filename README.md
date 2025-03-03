@@ -1,54 +1,64 @@
-# React + TypeScript + Vite
+# Website bán sách thiếu nhi sử dụng React + TypeScript + Vite
+Dự án cung cấp giao diện người dùng hiện đại, dễ sử dụng để hiển thị sản phẩm, quản lý giỏ hàng và thực hiện thanh toán.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+# Tính năng
+- Hiển thị danh sách sản phẩm.
+- Tìm kiếm và lọc sản phẩm.
+- Quản lý giỏ hàng.
+- Thanh toán đơn hàng.
+- Responsive giao diện trên mọi thiết bị.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## Công nghệ sử dụng
+- **React.js**: Thư viện chính để xây dựng giao diện người dùng.
+- **React Router DOM**: Điều hướng giữa các trang.
+- **React Query**: Quản lý trạng thái.
+- **Tailwind CSS**: Xây dựng giao diện.
+- **REST API**: Kết nối và lấy dữ liệu từ Backend.
+- **ESLint và Prettier**: Định dạng và kiểm tra mã nguồn.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Yêu cầu hệ thống
+- **Node.js**: >= 16.x
+- **npm**: >= 8.x
+- **Trình duyệt**: Hỗ trợ ES6.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
+# Hướng dẫn cài đặt
+## Công nghệ sử dụng
+- **React.js**: Thư viện chính để xây dựng giao diện người dùng.
+- **React Router DOM**: Điều hướng giữa các trang.
+- **React Query**: Quản lý trạng thái.
+- **Tailwind CSS**: Xây dựng giao diện.
+- **REST API**: Kết nối và lấy dữ liệu từ Backend.
+- **ESLint và Prettier**: Định dạng và kiểm tra mã nguồn.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Yêu cầu hệ thống
+- **Node.js**: >= 16.x
+- **npm**: >= 8.x
+- **Trình duyệt**: Hỗ trợ ES6.
+
+---
+
+## Cài đặt
+1. Clone dự án:
+   ```bash
+   git clone https://github.com/TranDuc41/bookstore_fe.git
+   cd bookstore_fe
+   ```
+
+2. Cài đặt các gói phụ thuộc:
+    ```bash
+    npm install
+    ```
+
+3. Chạy ứng dụng:
+    ```bash
+    npm run dev
+    ```
