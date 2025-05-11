@@ -6,24 +6,30 @@ interface ProductProps {
     productName: string,
     productThumb: string,
     productPrice: number,
-    productPriceSale?:number|null
+    productPriceSale?: number | null
     productSlug: string
 }
 
-const CardProduct: React.FC<ProductProps> = ({productName, productThumb, productPrice, productPriceSale, productSlug }) => {
+const CardProduct: React.FC<ProductProps> = ({ productName, productThumb, productPrice, productPriceSale, productSlug }) => {
     return (
-        <Card>
+        <Card className="h-full justify-between">
             <Link to={`/product/${productSlug}`}>
                 <CardHeader>
-                    <img src={productThumb} alt={productName} loading="lazy" />
+                    <img src={productThumb} alt={productName} loading="lazy" className="h-64 object-contain" />
                 </CardHeader>
                 <CardContent className="mt-6">
                     <CardTitle>{productName}</CardTitle>
                 </CardContent>
             </Link>
             <CardFooter className="flex justify-between">
-                <p>Giá: <span className="text-red-500 font-medium">{formatVND(productPrice)}</span></p>
-                {productPriceSale ? (<p className="line-through">{formatVND(productPriceSale)}</p>) : ''}
+                {productPriceSale ? (
+                    <>
+                        <p>Giá: <span className="text-red-500 font-medium">{formatVND(productPriceSale)}</span></p>
+                        <p className="line-through">{formatVND(productPrice)}</p>
+                    </>
+                ) : (
+                    <p>Giá: <span className="text-red-500 font-medium">{formatVND(productPrice)}</span></p>
+                )}
             </CardFooter>
         </Card>
 

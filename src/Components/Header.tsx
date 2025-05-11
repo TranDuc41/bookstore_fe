@@ -1,18 +1,19 @@
 import { Link, useLocation } from "react-router-dom"
 import UserInfo from "./UserInfo"
-import { Input } from "./ui/input"
 import { ModeToggle } from "./mode-toggle"
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/Components/ui/navigation-menu"
+
 import Cart from "./Cart"
+import CategoryApi from "@/api/Category"
+import { useEffect, useState } from "react"
+import { ICategory } from "@/Interfaces/Category.interface"
+import Search from "./Search"
 
 
 const menus = [
@@ -26,28 +27,22 @@ const menus = [
   }
 ]
 
-const categories = [
-  {
-    name: 'Truyện Thiếu Nhi',
-    slug: 'danh-muc',
-    uid: '1'
-  },
-  {
-    name: 'Kiến Thức - Kỹ Năng Sống Cho Trẻ',
-    slug: 'danh-muc',
-    uid: '2'
-  },
-  {
-    name: 'Tô màu, luyện chữ',
-    slug: 'danh-muc',
-    uid: '3'
-  },
-]
-
 const Header = () => {
   const location = useLocation()
-  const isLogin = false
-  const username = 'User Name'
+  const slug = location.pathname.split("/").pop(); // Lấy phần cuối của URL
+  const [categories, setCategories] = useState<ICategory[]>([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await CategoryApi.category()
+        setCategories(response.data)
+      } catch (error) {
+        console.error("Lỗi khi gọi API category: ", error)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   return (
     <header className="header flex justify-between items-center w-full py-6 border-b">
@@ -64,8 +59,9 @@ const Header = () => {
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                   {categories.map((category) => (
-                    <Link to={`/category/${category.slug}`} key={category.uid}
-                      className="hover:bg-accent py-2 rounded-md">{category.name}</Link>
+                    <Link to={`/category/${category.slug}`} key={category.id}
+                      className={`hover:bg-accent py-2 rounded-md text-start px-3 
+                        ${slug === category.slug ? "text-red-500 font-bold" : ""}`}>{category.name}</Link>
                   ))}
                 </ul>
               </NavigationMenuContent>
@@ -82,9 +78,9 @@ const Header = () => {
       </div>
       <div className="flex items-center gap-6">
         <div>
-          <Input type="text" placeholder="Nhập tên sách..." />
+          <Search />
         </div>
-        <UserInfo isLogin={isLogin} username={username} />
+        <UserInfo />
         <Cart />
         <ModeToggle />
       </div>

@@ -5,29 +5,24 @@ import 'swiper/css/navigation';
 
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
-
-const BannerImgs = [
-    {
-        url: './20240228_mYlgPFlk.png',
-        alt: 'image',
-        id: 1,
-        link: ''
-    },
-    {
-        url: './20250107_HRZhQmSo.jfif',
-        alt: 'image',
-        id: 2,
-        link: ''
-    },
-    {
-        url: './20250219_511HpS5t.jfif',
-        alt: 'image',
-        id: 3,
-        link: ''
-    }
-]
+import { useEffect, useState } from "react";
+import BannerApi from "@/api/Banner";
 
 const Banner = () => {
+    const [BannerImgs, setBannerImg] = useState([])
+
+    useEffect(() => {
+        const fetchBanners = async () => {
+          try {
+            const response = await BannerApi.getBanner()
+            setBannerImg(response.data)
+          } catch (error) {
+            console.error("Lỗi khi gọi API category: ", error)
+          }
+        }
+        fetchBanners()
+      }, [])
+
     return (
         <div className="grid grid-cols-3 gap-6 my-12">
             <Swiper
@@ -35,20 +30,20 @@ const Banner = () => {
                 modules={[Navigation]}
                 className="rounded-2xl col-span-2"
             >
-                {BannerImgs.map((bannerImg) => (
-                    <SwiperSlide key={bannerImg.id}>
+                {BannerImgs.banner_left?.map((bannerImg, index) => (
+                    <SwiperSlide key={index}>
                         <Link to={bannerImg.link}>
-                            <img src={bannerImg.url} alt={bannerImg.alt} className="h-full object-cover" />
+                            <img src={bannerImg.img} alt={bannerImg.img} className="h-full object-cover" />
                         </Link>
                     </SwiperSlide>
                 ))}
             </Swiper>
             <div className="grid grid-rows-2 justify-between gap-6">
                 <div className="h-full w-full">
-                    <img src="./20240717_vdHNhklV.jfif" alt="muasamkhongtienmat" className="rounded-2xl object-cover" />
+                    <img src={BannerImgs.banner_right_top} alt={BannerImgs.banner_right_top} className="rounded-2xl object-cover" />
                 </div>
                 <div className="h-full w-full">
-                    <img src="./20241024_oC6dYh45.png" alt="muasamkhongtienmat" className="rounded-2xl object-cover" />
+                    <img src={BannerImgs.banner_right_bottom} alt={BannerImgs.banner_right_bottom} className="rounded-2xl object-cover" />
                 </div>
             </div>
         </div>

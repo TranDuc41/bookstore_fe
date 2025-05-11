@@ -1,9 +1,13 @@
+import RegisterApi from "@/api/Register"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Components/ui/form"
 import { Input } from "@/Components/ui/input"
+import { useAuth } from "@/Context/AuthContext"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import { z } from "zod"
 
 const formSchema = z.object({
@@ -19,6 +23,10 @@ const formSchema = z.object({
 })
 
 const Register = () => {
+    const { setAuthData } = useAuth();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -28,8 +36,20 @@ const Register = () => {
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         console.log(values)
+        setIsLoading(true);
+        try {
+            const response = await RegisterApi.register(values);
+            toast.success('Tạo tài khoản thành công.');
+            navigate("/login");
+        } catch (error) {
+            toast.error('Có lỗi xảy ra!')
+            console.error("Đăng ký thất bại:", error);
+        }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -84,7 +104,7 @@ const Register = () => {
                                 <Link to={'/login'} className="text-destructive">Đăng nhập</Link>
                             </div>
                         </div>
-                        <Button type="submit">Đăng ký</Button>
+                        <Button type="submit" disabled={isLoading}>{isLoading ? "Đang đăng ký..." : "Đăng ký"}</Button>
                     </form>
                 </Form>
             </div>

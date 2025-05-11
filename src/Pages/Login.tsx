@@ -1,31 +1,54 @@
+import LoginApi from "@/api/Login"
+import { useAuth } from "@/Context/AuthContext";
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/Components/ui/form"
 import { Input } from "@/Components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { z } from "zod"
 
 const formSchema = z.object({
-    password: z.string().min(6, {
-        message: "Mật khẩu phải từ 6 ký tự.",
+    password: z.string().min(2, {
+        message: "Mật khẩu phải từ 2 ký tự.",
     }),
-    email: z.string().email({
-        message: "Email không đúng định dạng.",
+    username: z.string().min(2, {
+        message: "Username phải đúng định dạng.",
     }),
 })
 
 const Login = () => {
+    const { setAuthData } = useAuth();
+    const navigate = useNavigate();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             password: "",
-            email: "",
+            username: "",
         },
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            const response = await LoginApi.login(values);
+            setAuthData(response.data);
+            navigate("/");
+        } catch (error) {
+            console.error("Login thất bại:", error);
+            // Kiểm tra nếu lỗi là yêu cầu xác minh email
+            if (error.response?.data?.code === "[jwt_auth] uv_authentication_failed") {
+                const verifyLinkRegex = /href="([^"]+)"/;
+                const match = error.response.data.message.match(verifyLinkRegex);
+                const verifyLink = match ? match[1] : null;
+
+                if (verifyLink) {
+                    navigate(`/verify-email?verifyLink=${encodeURIComponent(verifyLink)}`);
+                } else {
+                    navigate("/verify-email");
+                }
+            }
+        }
     }
 
     return (
@@ -37,12 +60,12 @@ const Login = () => {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 min-w-96">
                         <FormField
                             control={form.control}
-                            name="email"
+                            name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>Username</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Địa chỉ Email..." {...field} />
+                                        <Input placeholder="Nhập username..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

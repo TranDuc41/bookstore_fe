@@ -1,54 +1,45 @@
-import { ShoppingCart, Trash2 } from "lucide-react"
-import { Button } from "./ui/button"
-import { Checkbox } from "./ui/checkbox"
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet"
-import QuantitySelector from "./QuantitySelector"
-import { useState } from "react"
+import { ShoppingCart, Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "./ui/sheet";
+import QuantitySelector from "./QuantitySelector";
+import { IProductCart } from "@/Interfaces/Product.interface";
+import { useCart } from "@/Context/CartContext";
+import formatVND from "@/Helpers/FormatVND";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-    const [products, setProducts] = useState([
-        { id: 1, name: "Sản phẩm 1", price: 100000, discountPrice: 200000, quantity: 1, image: "/image_195509_1_46272.webp", checked: false },
-        { id: 2, name: "Sản phẩm 2", price: 150000, discountPrice: 250000, quantity: 1, image: "/image_195509_1_46272.webp", checked: false }
-    ])
-    const [selectAll, setSelectAll] = useState(false)
+    const navigate = useNavigate();
+    const { products, selectAll, total, handleQuantityChange, handleDelete, handleSelect, handleSelectAll } = useCart();
 
-    const handleQuantityChange = (id:number, value:number) => {
-        const updatedProducts = products.map(product =>
-            product.id === id ? { ...product, quantity: value } : product
-        )
-        setProducts(updatedProducts)
-    }
+    // Kiểm tra xem có sản phẩm nào được chọn hay không
+    const isDisabled = !products.some((product) => product.checked);
 
-    const handleDelete = (id:number) => {
-        const updatedProducts = products.filter(product => product.id !== id)
-        setProducts(updatedProducts)
-    }
+    const handlePayment = () => {
+        const selectedProducts = products
+            .filter((product) => product.checked)
+            .map(({ id, name, quantity, price, regular_price, images }) => ({
+                id,
+                name,
+                quantity,
+                price: Number(price), // Ép kiểu thành số
+                regular_price,
+                images,
+            }));
 
-    const handleSelect = (id:number) => {
-        const updatedProducts = products.map(product =>
-            product.id === id ? { ...product, checked: !product.checked } : product
-        )
-        setProducts(updatedProducts)
+        if (selectedProducts.length === 0) return; // Không có sản phẩm nào được chọn
 
-        // Kiểm tra tất cả sản phẩm đã được chọn
-        const allSelected = updatedProducts.every(product => product.checked)
-        setSelectAll(allSelected)
-    }
-
-    const handleSelectAll = () => {
-        const newChecked = !selectAll
-        setSelectAll(newChecked)
-
-        const updatedProducts = products.map(product => ({
-            ...product,
-            checked: newChecked
-        }))
-        setProducts(updatedProducts)
-    }
-
-    const total = products.reduce((sum, product) => product.checked ? sum + product.quantity * product.price : sum, 0)
-
-    const isDisabled = !products.some(product => product.checked)
+        navigate("/payment", { state: { products: selectedProducts } });
+    };
 
     return (
         <Sheet>
@@ -71,50 +62,77 @@ const Cart = () => {
                     <label htmlFor="select-all">Chọn tất cả</label>
                 </div>
 
+                {/* Danh sách sản phẩm */}
                 <div className="grid gap-4 px-3 py-4">
                     {products.map((product) => (
-                        <div key={product.id} className="grid grid-cols-4 gap-3 items-center border-y border-dashed py-3">
-                            <div className="col-span-1 flex items-center gap-2">
-                                <Checkbox
-                                    id={`product-${product.id}`}
-                                    checked={product.checked}
-                                    onCheckedChange={() => handleSelect(product.id)}
-                                />
-                                <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
-                            </div>
-                            <div className="col-span-2">
-                                <p>{product.name}</p>
-                                <div className="flex gap-3">
-                                    <strong className="text-destructive">{product.price.toLocaleString()} đ</strong>
-                                    <span className="line-through">{product.discountPrice.toLocaleString()} đ</span>
-                                </div>
-                                <QuantitySelector
-                                    max={10}
-                                    min={1}
-                                    value={product.quantity}
-                                    onQuantityChange={(value:number) => handleQuantityChange(product.id, value)}
-                                />
-                            </div>
-                            <div>
-                                <Button variant="destructive" onClick={() => handleDelete(product.id)}>
-                                    <Trash2 />
-                                </Button>
-                            </div>
-                        </div>
+                        <CartItem
+                            key={product.id}
+                            product={product}
+                            onSelect={handleSelect}
+                            onQuantityChange={handleQuantityChange}
+                            onDelete={handleDelete}
+                        />
                     ))}
                 </div>
 
+                {/* Footer giỏ hàng */}
                 <SheetFooter>
                     <div>
                         <p>Cần thanh toán: <strong>{total.toLocaleString()} đ</strong></p>
                     </div>
                     <SheetClose asChild>
-                        <Button type="submit" variant="destructive" disabled={isDisabled}>Thanh toán</Button>
+                        <Button type="submit" variant="destructive" disabled={isDisabled} onClick={handlePayment}>
+                            Thanh toán
+                        </Button>
                     </SheetClose>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
-    )
-}
+    );
+};
 
-export default Cart
+const CartItem = ({
+    product,
+    onSelect,
+    onQuantityChange,
+    onDelete,
+}: {
+    product: IProductCart;
+    onSelect: (id: number) => void;
+    onQuantityChange: (id: number, value: number) => void;
+    onDelete: (id: number) => void;
+}) => {
+    return (
+        <div className="grid grid-cols-4 gap-3 items-center border-y border-dashed py-3">
+            <div className="col-span-1 flex items-center gap-2">
+                <Checkbox
+                    id={`product-${product.id}`}
+                    checked={product.checked}
+                    onCheckedChange={() => onSelect(product.id)}
+                />
+                <img src={product.images[0].src} alt={product.name} className="w-16 h-16 object-cover rounded" />
+            </div>
+            <div className="col-span-2">
+                <p className="truncate">{product.name}</p>
+                <div className="flex gap-3">
+                    <strong className="text-destructive">{formatVND(product.price)}</strong>
+                    <span className="line-through">{formatVND(product.regular_price)}</span>
+                </div>
+                {/* Chỉnh sửa số lượng */}
+                <QuantitySelector
+                    max={10}
+                    min={1}
+                    value={product.quantity}
+                    onQuantityChange={(value: number) => onQuantityChange(product.id, value)}
+                />
+            </div>
+            <div>
+                <Button variant="destructive" onClick={() => onDelete(product.id)}>
+                    <Trash2 />
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+export default Cart;
